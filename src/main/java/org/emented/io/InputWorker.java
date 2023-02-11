@@ -1,6 +1,6 @@
 package org.emented.io;
 
-import org.emented.ExtendedMatrix;
+import org.emented.dto.ExtendedMatrix;
 
 import java.io.InputStream;
 

@@ -1,12 +1,15 @@
 package org.emented;
 
-import org.emented.exception.MatrixRowAmountMismatchException;
+import org.emented.exception.MatrixRowsAmountMismatchException;
 import org.emented.exception.MatrixRowArgumentAmountMismatchException;
 import org.emented.file_work.FileWorker;
 import org.emented.io.InputWorker;
+import org.emented.dto.ExtendedMatrix;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
@@ -31,7 +34,6 @@ public class Application {
 
         String answer = askToInput("Do you want to read data from file " +
                 "(by default program reads data from console)? (y/n)");
-
         if (answer == null) return;
 
         InputStream inputStream;
@@ -39,38 +41,54 @@ public class Application {
         if ("y".equalsIgnoreCase(answer)) {
             String filename = askToInput("Input relative path to the file");
             if (filename == null) return;
-
-            inputStream = fileWorker.getInputStreamByFileName(filename);
+            try {
+                inputStream = fileWorker.getInputStreamByFileName(filename);
+            } catch (FileNotFoundException e) {
+                printErrorMessage("File with name: " + filename + " not found or unreadable");
+                return;
+            }
         } else {
             System.out.println("Input number of variables and then coefficients of system as extended matrix," +
                     " with columns divided by whitespace and rows divided by newline");
             inputStream = System.in;
         }
 
+        sc.close();
+
         ExtendedMatrix extendedMatrix;
 
         try {
-            extendedMatrix = inputWorker.readMatrixFromInputStream(inputStream);
-        } catch (NumberFormatException e) {
-            printErrorMessage("All system coefficients must be numbers in range (-2^32, 2^32 - 1)");
-            return;
-        } catch (InputMismatchException e) {
-            printErrorMessage("Number of variables must be a number in range (-2^32, 2^32 - 1)");
-            return;
-        } catch (MatrixRowArgumentAmountMismatchException e) {
-            printErrorMessage("Each row of the extended matrix should contain (number of variables + 1) numbers");
-            return;
-        } catch (MatrixRowAmountMismatchException e) {
-            printErrorMessage("Matrix should contain (number of variables) rows");
-            return;
-        } catch (NoSuchElementException e) {
-            printErrorMessage("Input contains not supported symbol");
+            extendedMatrix = getExtendedMatrix(inputStream);
+        } catch (IOException e) {
+            printErrorMessage(e.getMessage());
             return;
         }
+
+        if (extendedMatrix == null) return;
 
         extendedMatrix.print();
 
         sc.close();
+    }
+
+    private ExtendedMatrix getExtendedMatrix(InputStream inputStream) throws IOException {
+        ExtendedMatrix extendedMatrix = null;
+
+        try (inputStream) {
+            extendedMatrix = inputWorker.readMatrixFromInputStream(inputStream);
+        } catch (NumberFormatException e) {
+            printErrorMessage("All system coefficients must be numbers in range (-2^32, 2^32 - 1)");
+        } catch (InputMismatchException e) {
+            printErrorMessage("Number of variables must be a number in range (-2^32, 2^32 - 1)");
+        } catch (MatrixRowArgumentAmountMismatchException e) {
+            printErrorMessage("Each row of the extended matrix should contain (number of variables + 1) numbers");
+        } catch (MatrixRowsAmountMismatchException e) {
+            printErrorMessage("Matrix should contain (number of variables) rows");
+        } catch (NoSuchElementException e) {
+            printErrorMessage("Input contains not supported symbol");
+        }
+
+        return extendedMatrix;
     }
 
     private String askToInput(String stringToAskWith) {
@@ -80,6 +98,7 @@ public class Application {
             return sc.nextLine();
         } catch (NoSuchElementException e) {
             printErrorMessage("Input contains not supported symbol");
+            sc.close();
             return null;
         }
     }

@@ -1,4 +1,4 @@
-package org.emented;
+package org.emented.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

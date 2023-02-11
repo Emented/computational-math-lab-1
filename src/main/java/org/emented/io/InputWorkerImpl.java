@@ -1,7 +1,7 @@
 package org.emented.io;
 
-import org.emented.ExtendedMatrix;
-import org.emented.exception.MatrixRowAmountMismatchException;
+import org.emented.dto.ExtendedMatrix;
+import org.emented.exception.MatrixRowsAmountMismatchException;
 import org.emented.exception.MatrixRowArgumentAmountMismatchException;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ public class InputWorkerImpl implements InputWorker {
         for (int i = 0; i < numberOfVariables; i++) {
             String row = sc.nextLine().trim();
             if (row.isEmpty()) {
-                throw new MatrixRowAmountMismatchException();
+                throw new MatrixRowsAmountMismatchException();
             }
 
             String[] splitted_row = row.split(SPLIT_REGEX);
