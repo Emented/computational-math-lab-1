@@ -1,6 +1,8 @@
 package org.emented;
 
+import org.emented.exception.MatrixRowAmountMismatchException;
 import org.emented.exception.MatrixRowArgumentAmountMismatchException;
+import org.emented.file_work.FileWorker;
 import org.emented.io.InputWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,11 +16,13 @@ import java.util.Scanner;
 public class Application {
 
     private final InputWorker inputWorker;
+    private final FileWorker fileWorker;
     private final Scanner sc;
 
     @Autowired
-    public Application(InputWorker inputWorker) {
+    public Application(InputWorker inputWorker, FileWorker fileWorker) {
         this.inputWorker = inputWorker;
+        this.fileWorker = fileWorker;
         sc = new Scanner(System.in);
     }
 
@@ -28,10 +32,15 @@ public class Application {
         String answer = askToInput("Do you want to read data from file " +
                 "(by default program reads data from console)? (y/n)");
 
-        InputStream inputStream = null;
+        if (answer == null) return;
+
+        InputStream inputStream;
 
         if ("y".equalsIgnoreCase(answer)) {
             String filename = askToInput("Input relative path to the file");
+            if (filename == null) return;
+
+            inputStream = fileWorker.getInputStreamByFileName(filename);
         } else {
             System.out.println("Input number of variables and then coefficients of system as extended matrix," +
                     " with columns divided by whitespace and rows divided by newline");
@@ -51,6 +60,9 @@ public class Application {
         } catch (MatrixRowArgumentAmountMismatchException e) {
             printErrorMessage("Each row of the extended matrix should contain (number of variables + 1) numbers");
             return;
+        } catch (MatrixRowAmountMismatchException e) {
+            printErrorMessage("Matrix should contain (number of variables) rows");
+            return;
         } catch (NoSuchElementException e) {
             printErrorMessage("Input contains not supported symbol");
             return;
@@ -62,9 +74,14 @@ public class Application {
     }
 
     private String askToInput(String stringToAskWith) {
-        System.out.println(stringToAskWith);
-        System.out.print(">>> ");
-        return sc.nextLine();
+        try {
+            System.out.println(stringToAskWith);
+            System.out.print(">>> ");
+            return sc.nextLine();
+        } catch (NoSuchElementException e) {
+            printErrorMessage("Input contains not supported symbol");
+            return null;
+        }
     }
 
     private void printErrorMessage(String message) {

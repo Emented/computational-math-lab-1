@@ -1,14 +1,15 @@
 package org.emented.io;
 
 import org.emented.ExtendedMatrix;
+import org.emented.exception.MatrixRowAmountMismatchException;
 import org.emented.exception.MatrixRowArgumentAmountMismatchException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Scanner;
 
-@Component
+@Service
 public class InputWorkerImpl implements InputWorker {
 
     private static final String SPLIT_REGEX = " ";
@@ -22,11 +23,17 @@ public class InputWorkerImpl implements InputWorker {
         int[][] extendedMatrix = new int[numberOfVariables][numberOfVariables + 1];
 
         for (int i = 0; i < numberOfVariables; i++) {
-            String[] splitted_line = sc.nextLine().trim().split(SPLIT_REGEX);
-            if (splitted_line.length != numberOfVariables + 1) {
+            String row = sc.nextLine().trim();
+            if (row.isEmpty()) {
+                throw new MatrixRowAmountMismatchException();
+            }
+
+            String[] splitted_row = row.split(SPLIT_REGEX);
+            if (splitted_row.length != numberOfVariables + 1) {
                 throw new MatrixRowArgumentAmountMismatchException();
             }
-            int[] converted_line = Arrays.stream(splitted_line).mapToInt(Integer::parseInt).toArray();
+
+            int[] converted_line = Arrays.stream(splitted_row).mapToInt(Integer::parseInt).toArray();
             extendedMatrix[i] = converted_line;
         }
 
