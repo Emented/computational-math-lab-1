@@ -5,8 +5,9 @@ import org.emented.exception.MatrixRowArgumentAmountMismatchException;
 import org.emented.file_work.FileWorker;
 import org.emented.io.InputWorker;
 import org.emented.dto.ExtendedMatrix;
-import org.emented.messages.ErrorMessages;
-import org.emented.messages.UserMessages;
+import org.emented.io.OutputPrinter;
+import org.emented.messages.ErrorMessage;
+import org.emented.messages.UserMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,34 +23,36 @@ public class Application {
 
     private final InputWorker inputWorker;
     private final FileWorker fileWorker;
+    private final OutputPrinter outputPrinter;
     private final Scanner sc;
 
     @Autowired
-    public Application(InputWorker inputWorker, FileWorker fileWorker) {
+    public Application(InputWorker inputWorker, FileWorker fileWorker, OutputPrinter outputPrinter) {
         this.inputWorker = inputWorker;
         this.fileWorker = fileWorker;
+        this.outputPrinter = outputPrinter;
         sc = new Scanner(System.in);
     }
 
     public void run() {
-        System.out.println(UserMessages.WELCOME_MESSAGE);
+        outputPrinter.printUserMessage(UserMessage.WELCOME_MESSAGE);
 
-        String answer = askToInput(UserMessages.INPUT_TYPE_MESSAGE);
+        String answer = outputPrinter.askToInput(UserMessage.INPUT_TYPE_MESSAGE, sc);
         if (answer == null) return;
 
         InputStream inputStream;
 
         if ("y".equalsIgnoreCase(answer)) {
-            String filename = askToInput(UserMessages.INPUT_PATH_MESSAGE);
+            String filename = outputPrinter.askToInput(UserMessage.INPUT_PATH_MESSAGE, sc);
             if (filename == null) return;
             try {
                 inputStream = fileWorker.getInputStreamByFileName(filename);
             } catch (FileNotFoundException e) {
-                printErrorMessage(ErrorMessages.FILE_NOT_FOUND_MESSAGE);
+                outputPrinter.printErrorMessage(ErrorMessage.FILE_NOT_FOUND_MESSAGE);
                 return;
             }
         } else {
-            System.out.println(UserMessages.INPUT_SYSTEM_MESSAGE);
+            outputPrinter.printUserMessage(UserMessage.INPUT_SYSTEM_MESSAGE);
             inputStream = System.in;
         }
 
@@ -60,7 +63,7 @@ public class Application {
         try {
             extendedMatrix = getExtendedMatrix(inputStream);
         } catch (IOException e) {
-            printErrorMessage(ErrorMessages.FATAL_ERROR);
+            outputPrinter.printErrorMessage(ErrorMessage.FATAL_ERROR);
             return;
         }
 
@@ -77,34 +80,17 @@ public class Application {
         try (inputStream) {
             extendedMatrix = inputWorker.readMatrixFromInputStream(inputStream);
         } catch (NumberFormatException e) {
-            printErrorMessage(ErrorMessages.SYSTEM_COEFFICIENT_TYPE_MISMATCH_MESSAGE);
+            outputPrinter.printErrorMessage(ErrorMessage.SYSTEM_COEFFICIENT_TYPE_MISMATCH_MESSAGE);
         } catch (InputMismatchException e) {
-            printErrorMessage(ErrorMessages.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE);
+            outputPrinter.printErrorMessage(ErrorMessage.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE);
         } catch (MatrixRowArgumentAmountMismatchException e) {
-            printErrorMessage(ErrorMessages.ROW_ARGS_AMOUNT_MISMATCH_MESSAGE);
+            outputPrinter.printErrorMessage(ErrorMessage.ROW_ARGS_AMOUNT_MISMATCH_MESSAGE);
         } catch (MatrixRowsAmountMismatchException e) {
-            printErrorMessage(ErrorMessages.ROWS_AMOUNT_MISMATCH_MESSAGE);
+            outputPrinter.printErrorMessage(ErrorMessage.ROWS_AMOUNT_MISMATCH_MESSAGE);
         } catch (NoSuchElementException e) {
-            printErrorMessage(ErrorMessages.NOT_SUPPORTED_SYMBOL_MESSAGE);
+            outputPrinter.printErrorMessage(ErrorMessage.NOT_SUPPORTED_SYMBOL_MESSAGE);
         }
 
         return extendedMatrix;
-    }
-
-    private String askToInput(UserMessages userMessage) {
-        try {
-            System.out.println(userMessage);
-            System.out.print(">>> ");
-            return sc.nextLine();
-        } catch (NoSuchElementException e) {
-            printErrorMessage(ErrorMessages.NOT_SUPPORTED_SYMBOL_MESSAGE);
-            sc.close();
-            return null;
-        }
-    }
-
-    private void printErrorMessage(ErrorMessages errorMessage) {
-        System.err.println(errorMessage);
-        System.err.println("Fix input, rerun the application and try again!");
     }
 }

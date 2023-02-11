@@ -1,6 +1,6 @@
 package org.emented.messages;
 
-public enum UserMessages {
+public enum UserMessage {
     WELCOME_MESSAGE("Welcome to the simple iterations calculation program!"),
     INPUT_TYPE_MESSAGE("Do you want to read data from file " +
             "(by default program reads data from console)? (y/n)"),
@@ -10,7 +10,7 @@ public enum UserMessages {
 
     public final String message;
 
-    UserMessages(String message) {
+    UserMessage(String message) {
         this.message = message;
     }
 }

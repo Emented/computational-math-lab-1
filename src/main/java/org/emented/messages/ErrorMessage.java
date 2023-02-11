@@ -1,6 +1,6 @@
 package org.emented.messages;
 
-public enum ErrorMessages {
+public enum ErrorMessage {
     FILE_NOT_FOUND_MESSAGE("File not found or unreadable"),
     SYSTEM_COEFFICIENT_TYPE_MISMATCH_MESSAGE("All system coefficients must be numbers in range (-2^32, 2^32 - 1)"),
     NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE("Number of variables must be a number in range (-2^32, 2^32 - 1)"),
@@ -13,7 +13,7 @@ public enum ErrorMessages {
 
     public final String message;
 
-    ErrorMessages(String message) {
+    ErrorMessage(String message) {
         this.message = message;
     }
 }
