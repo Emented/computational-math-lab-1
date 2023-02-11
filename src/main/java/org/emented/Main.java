@@ -11,6 +11,6 @@ public class Main {
 
         Application application = applicationContext.getBean("application", Application.class);
 
-        application.run(args);
+        application.run();
     }
 }

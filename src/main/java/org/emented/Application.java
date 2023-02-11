@@ -29,7 +29,7 @@ public class Application {
         sc = new Scanner(System.in);
     }
 
-    public void run(String[] args) {
+    public void run() {
         System.out.println("Welcome to the simple iterations calculation program!");
 
         String answer = askToInput("Do you want to read data from file " +
