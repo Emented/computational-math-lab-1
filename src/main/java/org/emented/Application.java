@@ -5,6 +5,8 @@ import org.emented.exception.MatrixRowArgumentAmountMismatchException;
 import org.emented.file_work.FileWorker;
 import org.emented.io.InputWorker;
 import org.emented.dto.ExtendedMatrix;
+import org.emented.messages.ErrorMessages;
+import org.emented.messages.UserMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,26 +32,24 @@ public class Application {
     }
 
     public void run() {
-        System.out.println("Welcome to the simple iterations calculation program!");
+        System.out.println(UserMessages.WELCOME_MESSAGE);
 
-        String answer = askToInput("Do you want to read data from file " +
-                "(by default program reads data from console)? (y/n)");
+        String answer = askToInput(UserMessages.INPUT_TYPE_MESSAGE);
         if (answer == null) return;
 
         InputStream inputStream;
 
         if ("y".equalsIgnoreCase(answer)) {
-            String filename = askToInput("Input relative path to the file");
+            String filename = askToInput(UserMessages.INPUT_PATH_MESSAGE);
             if (filename == null) return;
             try {
                 inputStream = fileWorker.getInputStreamByFileName(filename);
             } catch (FileNotFoundException e) {
-                printErrorMessage("File with name: " + filename + " not found or unreadable");
+                printErrorMessage(ErrorMessages.FILE_NOT_FOUND_MESSAGE);
                 return;
             }
         } else {
-            System.out.println("Input number of variables and then coefficients of system as extended matrix," +
-                    " with columns divided by whitespace and rows divided by newline");
+            System.out.println(UserMessages.INPUT_SYSTEM_MESSAGE);
             inputStream = System.in;
         }
 
@@ -60,7 +60,7 @@ public class Application {
         try {
             extendedMatrix = getExtendedMatrix(inputStream);
         } catch (IOException e) {
-            printErrorMessage(e.getMessage());
+            printErrorMessage(ErrorMessages.FATAL_ERROR);
             return;
         }
 
@@ -77,34 +77,34 @@ public class Application {
         try (inputStream) {
             extendedMatrix = inputWorker.readMatrixFromInputStream(inputStream);
         } catch (NumberFormatException e) {
-            printErrorMessage("All system coefficients must be numbers in range (-2^32, 2^32 - 1)");
+            printErrorMessage(ErrorMessages.SYSTEM_COEFFICIENT_TYPE_MISMATCH_MESSAGE);
         } catch (InputMismatchException e) {
-            printErrorMessage("Number of variables must be a number in range (-2^32, 2^32 - 1)");
+            printErrorMessage(ErrorMessages.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE);
         } catch (MatrixRowArgumentAmountMismatchException e) {
-            printErrorMessage("Each row of the extended matrix should contain (number of variables + 1) numbers");
+            printErrorMessage(ErrorMessages.ROW_ARGS_AMOUNT_MISMATCH_MESSAGE);
         } catch (MatrixRowsAmountMismatchException e) {
-            printErrorMessage("Matrix should contain (number of variables) rows");
+            printErrorMessage(ErrorMessages.ROWS_AMOUNT_MISMATCH_MESSAGE);
         } catch (NoSuchElementException e) {
-            printErrorMessage("Input contains not supported symbol");
+            printErrorMessage(ErrorMessages.NOT_SUPPORTED_SYMBOL_MESSAGE);
         }
 
         return extendedMatrix;
     }
 
-    private String askToInput(String stringToAskWith) {
+    private String askToInput(UserMessages userMessage) {
         try {
-            System.out.println(stringToAskWith);
+            System.out.println(userMessage);
             System.out.print(">>> ");
             return sc.nextLine();
         } catch (NoSuchElementException e) {
-            printErrorMessage("Input contains not supported symbol");
+            printErrorMessage(ErrorMessages.NOT_SUPPORTED_SYMBOL_MESSAGE);
             sc.close();
             return null;
         }
     }
 
-    private void printErrorMessage(String message) {
-        System.err.println(message);
+    private void printErrorMessage(ErrorMessages errorMessage) {
+        System.err.println(errorMessage);
         System.err.println("Fix input, rerun the application and try again!");
     }
 }
