@@ -13,13 +13,13 @@ public class ConsolePrinter implements OutputPrinter {
 
     @Override
     public void printErrorMessage(ErrorMessage errorMessage) {
-        System.err.println(errorMessage);
-        System.err.println(ErrorMessage.RERUN_APPLICATION_MESSAGE);
+        System.err.println(errorMessage.message);
+        System.err.println(ErrorMessage.RERUN_APPLICATION_MESSAGE.message);
     }
 
     @Override
     public void printUserMessage(UserMessage userMessage) {
-        System.out.println(userMessage);
+        System.out.println(userMessage.message);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class ConsolePrinter implements OutputPrinter {
                         Scanner scanner,
                         Function<String, T> convertionFunction) {
         try {
-            System.out.println(userMessage);
+            System.out.println(userMessage.message);
             System.out.print(">>> ");
             return convertionFunction.apply(scanner.nextLine());
         } catch (NoSuchElementException e) {

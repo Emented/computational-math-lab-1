@@ -22,12 +22,14 @@ public class DiagonalConverterImpl implements DiagonalConverter {
                     maxInRow = Math.abs(sourceMatrix[i][j]);
                     maxIndex = j;
                 }
-
-                if (fillOfNewMatrix[maxIndex]) return null;
-
-                newMatrix[maxIndex] = sourceMatrix[i];
-                fillOfNewMatrix[maxIndex] = true;
             }
+
+            if (fillOfNewMatrix[maxIndex]) {
+                return null;
+            }
+
+            newMatrix[maxIndex] = sourceMatrix[i];
+            fillOfNewMatrix[maxIndex] = true;
         }
 
         if (checkIfDiagonalPredominant(newMatrix)) {

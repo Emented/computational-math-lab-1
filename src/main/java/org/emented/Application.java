@@ -74,8 +74,6 @@ public class Application {
                 Double::parseDouble);
         if (accuracy == null) return;
 
-        sc.close();
-
         ExtendedMatrix extendedMatrix;
 
         try {
@@ -94,12 +92,14 @@ public class Application {
             return;
         }
 
+        outputPrinter.printUserMessage(UserMessage.MATRIX_AFTER_DIAGONALIZATION_MESSAGE);
         extendedMatrix.print();
 
         SimpleIteratorSolver simpleIteratorSolver = new SimpleIteratorSolver(extendedMatrix, accuracy);
 
         simpleIteratorSolver.prepare();
         simpleIteratorSolver.solve();
+        simpleIteratorSolver.printAnswer();
 
         sc.close();
     }
