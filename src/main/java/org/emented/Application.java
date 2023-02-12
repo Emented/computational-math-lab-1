@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.function.Function;
 
 @Component
 public class Application {
@@ -37,13 +38,19 @@ public class Application {
     public void run() {
         outputPrinter.printUserMessage(UserMessage.WELCOME_MESSAGE);
 
-        String answer = outputPrinter.askToInput(UserMessage.INPUT_TYPE_MESSAGE, sc);
+        String answer = outputPrinter.askToInput(UserMessage.INPUT_TYPE_MESSAGE,
+                ErrorMessage.FATAL_ERROR,
+                sc,
+                Function.identity());
         if (answer == null) return;
 
         InputStream inputStream;
 
         if ("y".equalsIgnoreCase(answer)) {
-            String filename = outputPrinter.askToInput(UserMessage.INPUT_PATH_MESSAGE, sc);
+            String filename = outputPrinter.askToInput(UserMessage.INPUT_PATH_MESSAGE,
+                    ErrorMessage.FATAL_ERROR,
+                    sc,
+                    Function.identity());
             if (filename == null) return;
             try {
                 inputStream = fileWorker.getInputStreamByFileName(filename);
@@ -56,17 +63,11 @@ public class Application {
             inputStream = System.in;
         }
 
-        String accuracyString = outputPrinter.askToInput(UserMessage.INPUT_ACCURACY_MESSAGE, sc);
-        if (accuracyString == null) return;
-
-        double accuracy;
-
-        try {
-            accuracy = Double.parseDouble(accuracyString);
-        } catch (NumberFormatException e) {
-            outputPrinter.printErrorMessage(ErrorMessage.ACCURACY_TYPE_MISMATCH_MESSAGE);
-            return;
-        }
+        Double accuracy = outputPrinter.askToInput(UserMessage.INPUT_ACCURACY_MESSAGE,
+                ErrorMessage.ACCURACY_TYPE_MISMATCH_MESSAGE,
+                sc,
+                Double::parseDouble);
+        if (accuracy == null) return;
 
         sc.close();
 
