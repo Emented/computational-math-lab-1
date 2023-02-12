@@ -1,7 +1,7 @@
 package org.emented.io;
 
-import org.emented.messages.ErrorMessage;
-import org.emented.messages.UserMessage;
+import org.emented.message.ErrorMessage;
+import org.emented.message.UserMessage;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;

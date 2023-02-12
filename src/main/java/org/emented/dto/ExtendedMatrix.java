@@ -8,11 +8,11 @@ import lombok.Data;
 public class ExtendedMatrix {
 
     private int numberOfVariables;
-    private int[][] matrix;
+    private double[][] matrix;
 
     public void print() {
-        for (int[] row : matrix) {
-            for (int el : row) {
+        for (double[] row : matrix) {
+            for (double el : row) {
                 System.out.print(el + " ");
             }
             System.out.println();

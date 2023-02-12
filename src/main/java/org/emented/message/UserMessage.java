@@ -1,4 +1,4 @@
-package org.emented.messages;
+package org.emented.message;
 
 public enum UserMessage {
     WELCOME_MESSAGE("Welcome to the simple iterations calculation program!"),
@@ -6,8 +6,8 @@ public enum UserMessage {
             "(by default program reads data from console)? (y/n)"),
     INPUT_PATH_MESSAGE("Input relative path to the file"),
     INPUT_SYSTEM_MESSAGE("Input number of variables and then coefficients of system as extended matrix," +
-            " with columns divided by whitespace and rows divided by newline");
-
+            " with columns divided by whitespace and rows divided by newline"),
+    INPUT_ACCURACY_MESSAGE("Input accuracy of calculation");
     public final String message;
 
     UserMessage(String message) {

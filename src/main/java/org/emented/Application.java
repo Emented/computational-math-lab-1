@@ -6,8 +6,8 @@ import org.emented.file_work.FileWorker;
 import org.emented.io.InputWorker;
 import org.emented.dto.ExtendedMatrix;
 import org.emented.io.OutputPrinter;
-import org.emented.messages.ErrorMessage;
-import org.emented.messages.UserMessage;
+import org.emented.message.ErrorMessage;
+import org.emented.message.UserMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -54,6 +54,18 @@ public class Application {
         } else {
             outputPrinter.printUserMessage(UserMessage.INPUT_SYSTEM_MESSAGE);
             inputStream = System.in;
+        }
+
+        String accuracyString = outputPrinter.askToInput(UserMessage.INPUT_ACCURACY_MESSAGE, sc);
+        if (accuracyString == null) return;
+
+        double accuracy;
+
+        try {
+            accuracy = Double.parseDouble(accuracyString);
+        } catch (NumberFormatException e) {
+            outputPrinter.printErrorMessage(ErrorMessage.ACCURACY_TYPE_MISMATCH_MESSAGE);
+            return;
         }
 
         sc.close();

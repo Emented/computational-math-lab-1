@@ -20,7 +20,7 @@ public class InputWorkerImpl implements InputWorker {
         int numberOfVariables = sc.nextInt();
         sc.nextLine();
 
-        int[][] extendedMatrix = new int[numberOfVariables][numberOfVariables + 1];
+        double[][] extendedMatrix = new double[numberOfVariables][numberOfVariables + 1];
 
         for (int i = 0; i < numberOfVariables; i++) {
             String row = sc.nextLine().trim();
@@ -33,7 +33,7 @@ public class InputWorkerImpl implements InputWorker {
                 throw new MatrixRowArgumentAmountMismatchException();
             }
 
-            int[] converted_line = Arrays.stream(splitted_row).mapToInt(Integer::parseInt).toArray();
+            double[] converted_line = Arrays.stream(splitted_row).mapToDouble(Double::parseDouble).toArray();
             extendedMatrix[i] = converted_line;
         }
 
