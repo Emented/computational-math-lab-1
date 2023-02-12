@@ -1,4 +1,7 @@
 package org.emented.calculation;
 
-public class DiagonalConverter {
+import org.emented.dto.ExtendedMatrix;
+
+public interface DiagonalConverter {
+    ExtendedMatrix convertToDiagonalPredominant(ExtendedMatrix extendedMatrix);
 }

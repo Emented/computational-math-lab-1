@@ -1,5 +1,7 @@
 package org.emented;
 
+import org.emented.calculation.DiagonalConverterImpl;
+import org.emented.calculation.SimpleIteratorSolver;
 import org.emented.exception.MatrixRowsAmountMismatchException;
 import org.emented.exception.MatrixRowArgumentAmountMismatchException;
 import org.emented.file_work.FileWorker;
@@ -25,13 +27,15 @@ public class Application {
     private final InputWorker inputWorker;
     private final FileWorker fileWorker;
     private final OutputPrinter outputPrinter;
+    private final DiagonalConverterImpl diagonalConverter;
     private final Scanner sc;
 
     @Autowired
-    public Application(InputWorker inputWorker, FileWorker fileWorker, OutputPrinter outputPrinter) {
+    public Application(InputWorker inputWorker, FileWorker fileWorker, OutputPrinter outputPrinter, DiagonalConverterImpl diagonalConverter) {
         this.inputWorker = inputWorker;
         this.fileWorker = fileWorker;
         this.outputPrinter = outputPrinter;
+        this.diagonalConverter = diagonalConverter;
         sc = new Scanner(System.in);
     }
 
@@ -52,6 +56,7 @@ public class Application {
                     sc,
                     Function.identity());
             if (filename == null) return;
+
             try {
                 inputStream = fileWorker.getInputStreamByFileName(filename);
             } catch (FileNotFoundException e) {
@@ -82,7 +87,19 @@ public class Application {
 
         if (extendedMatrix == null) return;
 
+        extendedMatrix = diagonalConverter.convertToDiagonalPredominant(extendedMatrix);
+
+        if (extendedMatrix == null) {
+            outputPrinter.printErrorMessage(ErrorMessage.IMPOSSIBLE_TO_CONVERT_TO_DIAGONAL_MESSAGE);
+            return;
+        }
+
         extendedMatrix.print();
+
+        SimpleIteratorSolver simpleIteratorSolver = new SimpleIteratorSolver(extendedMatrix, accuracy);
+
+        simpleIteratorSolver.prepare();
+        simpleIteratorSolver.solve();
 
         sc.close();
     }

@@ -2,7 +2,7 @@ package org.emented.calculation;
 
 import org.emented.dto.ExtendedMatrix;
 
-public class SimpleIteratorSolver {
+public class SimpleIteratorSolver implements SystemSolver {
 
     private final ExtendedMatrix extendedMatrix;
     private final double accuracy;
@@ -13,11 +13,18 @@ public class SimpleIteratorSolver {
         this.accuracy = accuracy;
     }
 
+    @Override
     public void prepare() {
 
     }
 
+    @Override
     public void solve() {
+
+    }
+
+    @Override
+    public void printAnswer() {
 
     }
 }

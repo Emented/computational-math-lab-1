@@ -9,7 +9,8 @@ public enum ErrorMessage {
     ROWS_AMOUNT_MISMATCH_MESSAGE("Matrix should contain (number of variables) rows"),
     NOT_SUPPORTED_SYMBOL_MESSAGE("Input contains not supported symbol"),
     FATAL_ERROR("Something went wrong"),
-    RERUN_APPLICATION_MESSAGE("Fix input, rerun the application and try again!");
+    RERUN_APPLICATION_MESSAGE("Fix input, rerun the application and try again!"),
+    IMPOSSIBLE_TO_CONVERT_TO_DIAGONAL_MESSAGE("Impossible to convert to diagonal predominant form");
 
 
     public final String message;
