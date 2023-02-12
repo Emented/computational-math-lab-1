@@ -93,14 +93,14 @@ public class SimpleIteratorSolver implements SystemSolver {
         System.out.println("\nAnswer:");
 
         for (int i = 0; i < answer.length; i++) {
-            System.out.printf("x_%d = %f\n", i + 1, answer[i]);
+            System.out.printf("x_%d = %.10f\n", i + 1, answer[i]);
         }
 
         System.out.printf("Number of iterations: %d\n", iterationsCount);
 
         System.out.println("Errors: ");
         for (int i = 0; i < errors.size(); i++) {
-            System.out.printf("%d iteration: %f\n",
+            System.out.printf("%d iteration: %.12f\n",
                     i + 1,
                     errors.get(i)[extendedMatrix.getNumberOfVariables() - 1]);
         }
