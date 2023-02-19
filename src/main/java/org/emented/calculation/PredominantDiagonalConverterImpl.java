@@ -4,7 +4,7 @@ import org.emented.dto.ExtendedMatrix;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DiagonalConverterImpl implements DiagonalConverter {
+public class PredominantDiagonalConverterImpl implements DiagonalConverter {
 
     @Override
     public ExtendedMatrix convertToDiagonalPredominant(ExtendedMatrix extendedMatrix) {

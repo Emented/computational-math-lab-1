@@ -13,7 +13,10 @@ public class ExtendedMatrix {
     public void print() {
         for (double[] row : matrix) {
             for (double el : row) {
-                System.out.print(el + " ");
+                System.out.printf("%.5f ", el);
+                if (el >= 0) {
+                    System.out.print(" ");
+                }
             }
             System.out.println();
         }
