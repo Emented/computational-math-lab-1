@@ -4,6 +4,6 @@ import org.emented.dto.ExtendedMatrix;
 
 public interface PredominantMatrixGenerator {
 
-    ExtendedMatrix generatePredominantMatrix(int numberOfVariables);
+    ExtendedMatrix generatePredominantMatrix(int numberOfVariables, double accuracy);
 
 }

@@ -11,7 +11,7 @@ public class PredominantMatrixGeneratorImpl implements PredominantMatrixGenerato
     private static final double RANGE = 10;
 
     @Override
-    public ExtendedMatrix generatePredominantMatrix(int numberOfVariables) {
+    public ExtendedMatrix generatePredominantMatrix(int numberOfVariables, double accuracy) {
         Random random = new Random();
 
         double[][] generatedMatrix = new double[numberOfVariables][numberOfVariables + 1];
@@ -35,7 +35,7 @@ public class PredominantMatrixGeneratorImpl implements PredominantMatrixGenerato
 
         shuffleRows(numberOfVariables, generatedMatrix);
 
-        return new ExtendedMatrix(numberOfVariables, generatedMatrix);
+        return new ExtendedMatrix(numberOfVariables, accuracy, generatedMatrix);
     }
 
     private void shuffleRows(int numberOfVariables, double[][] matrix) {

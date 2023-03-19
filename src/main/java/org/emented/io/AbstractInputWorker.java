@@ -1,30 +1,26 @@
 package org.emented.io;
 
-import org.emented.dto.ExtendedMatrix;
-import org.emented.exception.MatrixRowsAmountMismatchException;
-import org.emented.exception.MatrixRowArgumentAmountMismatchException;
-import org.emented.exception.NumberOfVariablesTypeMismatchException;
-import org.springframework.stereotype.Service;
-
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Scanner;
 
-@Service
-public class InputWorkerImpl implements InputWorker {
+import org.emented.dto.ExtendedMatrix;
+import org.emented.exception.MatrixRowArgumentAmountMismatchException;
+import org.emented.exception.MatrixRowsAmountMismatchException;
 
-    private static final String SPLIT_REGEX = " ";
+public abstract class AbstractInputWorker {
 
-    public ExtendedMatrix readMatrixFromInputStream(InputStream inputStream) {
-        Scanner sc = new Scanner(inputStream);
+    protected static final String SPLIT_REGEX = "\\s+";
 
-        int numberOfVariables;
+    protected final OutputPrinter outputPrinter;
 
-        try {
-            numberOfVariables = Integer.parseInt(sc.nextLine());
-        } catch (NumberFormatException e) {
-            throw new NumberOfVariablesTypeMismatchException();
-        }
+    public AbstractInputWorker(OutputPrinter outputPrinter) {
+        this.outputPrinter = outputPrinter;
+    }
+
+    public abstract ExtendedMatrix getExtendedMatrix(InputStream inputStream);
+
+    protected double[][] readMatrix(Scanner sc, int numberOfVariables) {
 
         double[][] extendedMatrix = new double[numberOfVariables][numberOfVariables + 1];
 
@@ -45,7 +41,8 @@ public class InputWorkerImpl implements InputWorker {
             extendedMatrix[i] = converted_line;
         }
 
-        return new ExtendedMatrix(numberOfVariables, extendedMatrix);
+        return extendedMatrix;
+
     }
 
 }

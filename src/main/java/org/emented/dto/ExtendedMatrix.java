@@ -8,6 +8,8 @@ import lombok.Data;
 public class ExtendedMatrix {
 
     private int numberOfVariables;
+
+    private double accuracy;
     private double[][] matrix;
 
     public void print() {

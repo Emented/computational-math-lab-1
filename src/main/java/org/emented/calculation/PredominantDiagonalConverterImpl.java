@@ -33,7 +33,7 @@ public class PredominantDiagonalConverterImpl implements DiagonalConverter {
         }
 
         if (checkIfDiagonalPredominant(newMatrix)) {
-            return new ExtendedMatrix(matrixSize, newMatrix);
+            return new ExtendedMatrix(matrixSize, extendedMatrix.getAccuracy(), newMatrix);
         }
         return null;
     }

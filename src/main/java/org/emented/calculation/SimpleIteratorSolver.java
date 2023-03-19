@@ -11,7 +11,6 @@ import java.util.List;
 public class SimpleIteratorSolver implements SystemSolver {
 
     private final ExtendedMatrix extendedMatrix;
-    private final double accuracy;
     private int iterationsCount = 0;
 
     private final List<double[]> approximation;
@@ -19,9 +18,8 @@ public class SimpleIteratorSolver implements SystemSolver {
 
     private double[] answer;
 
-    public SimpleIteratorSolver(ExtendedMatrix extendedMatrix, double accuracy) {
+    public SimpleIteratorSolver(ExtendedMatrix extendedMatrix) {
         this.extendedMatrix = extendedMatrix;
-        this.accuracy = accuracy;
         approximation = new ArrayList<>();
         errors = new ArrayList<>();
         answer = new double[extendedMatrix.getNumberOfVariables()];
@@ -59,6 +57,7 @@ public class SimpleIteratorSolver implements SystemSolver {
 
     @Override
     public void solve() {
+        double accuracy = extendedMatrix.getAccuracy();
         int numberOfVariables = extendedMatrix.getNumberOfVariables();
         double[][] matrix = extendedMatrix.getMatrix();
 

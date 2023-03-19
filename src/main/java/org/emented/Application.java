@@ -1,14 +1,17 @@
 package org.emented;
 
 import org.emented.calculation.PredominantDiagonalConverterImpl;
-import org.emented.calculation.PredominantMatrixGenerator;
 import org.emented.calculation.SimpleIteratorSolver;
+import org.emented.exception.AccuracyOrNumberOfVariablesNotInputtedException;
+import org.emented.exception.AccuracyTypeMismatchException;
 import org.emented.exception.MatrixRowsAmountMismatchException;
 import org.emented.exception.MatrixRowArgumentAmountMismatchException;
 import org.emented.exception.NumberOfVariablesTypeMismatchException;
 import org.emented.filework.FileWorker;
-import org.emented.io.InputWorker;
+import org.emented.io.ConsoleInputWorker;
+import org.emented.io.FileInputWorker;
 import org.emented.dto.ExtendedMatrix;
+import org.emented.io.GeneratorInputWorker;
 import org.emented.io.OutputPrinter;
 import org.emented.message.ErrorMessage;
 import org.emented.message.UserMessage;
@@ -36,24 +39,27 @@ public class Application {
         return file.exists() && !file.isDirectory();
     };
 
-    private final InputWorker inputWorker;
+    private final ConsoleInputWorker consoleInputWorker;
+    private final FileInputWorker fileInputWorker;
+    private final GeneratorInputWorker generatorInputWorker;
     private final FileWorker fileWorker;
     private final OutputPrinter outputPrinter;
     private final PredominantDiagonalConverterImpl diagonalConverter;
-    private final PredominantMatrixGenerator predominantMatrixGenerator;
     private final Scanner sc;
 
     @Autowired
-    public Application(InputWorker inputWorker,
+    public Application(ConsoleInputWorker consoleInputWorker,
+                       FileInputWorker fileInputWorker,
+                       GeneratorInputWorker generatorInputWorker,
                        FileWorker fileWorker,
                        OutputPrinter outputPrinter,
-                       PredominantDiagonalConverterImpl diagonalConverter,
-                       PredominantMatrixGenerator predominantMatrixGenerator) {
-        this.inputWorker = inputWorker;
+                       PredominantDiagonalConverterImpl diagonalConverter) {
+        this.consoleInputWorker = consoleInputWorker;
+        this.fileInputWorker = fileInputWorker;
+        this.generatorInputWorker = generatorInputWorker;
         this.fileWorker = fileWorker;
         this.outputPrinter = outputPrinter;
         this.diagonalConverter = diagonalConverter;
-        this.predominantMatrixGenerator = predominantMatrixGenerator;
         sc = new Scanner(System.in);
     }
 
@@ -69,22 +75,9 @@ public class Application {
                 YES_NO_VALIDATION_PREDICATE,
                 ErrorMessage.YES_NO_QUESTION_ANSWER_VALIDATION_ERROR_MESSAGE);
 
-        Double accuracy = outputPrinter.askToInput(UserMessage.INPUT_ACCURACY_MESSAGE,
-                sc,
-                str -> Double.parseDouble(str.replaceAll(",", ".")),
-                ErrorMessage.ACCURACY_TYPE_MISMATCH_MESSAGE,
-                num -> num > 0,
-                ErrorMessage.ACCURACY_NUMBER_NEGATIVE_OR_ZERO_MESSAGE);
-
         if ("y".equalsIgnoreCase(generateNumbersAnswer)) {
-            Integer numberOfVariables = outputPrinter.askToInput(UserMessage.INPUT_NUMBER_OF_VARIABLES_MESSAGE,
-                    sc,
-                    Integer::parseInt,
-                    ErrorMessage.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE,
-                    num -> num > 0,
-                    ErrorMessage.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE);
 
-            extendedMatrix = predominantMatrixGenerator.generatePredominantMatrix(numberOfVariables);
+            extendedMatrix = generatorInputWorker.getExtendedMatrix(System.in);
         } else {
             String inputAnswer = outputPrinter.askToInput(UserMessage.INPUT_TYPE_MESSAGE,
                     sc,
@@ -111,13 +104,15 @@ public class Application {
 
                 extendedMatrix = getExtendedMatrixFromFile(inputStream);
             } else {
-                outputPrinter.printUserMessage(UserMessage.INPUT_SYSTEM_MESSAGE);
                 inputStream = System.in;
 
-                extendedMatrix = getExtendedMatrixFromConsole(inputStream);
+                extendedMatrix = consoleInputWorker.getExtendedMatrix(inputStream);
             }
 
-            if (extendedMatrix == null) return;
+            if (extendedMatrix == null) {
+                outputPrinter.printErrorMessage(ErrorMessage.RERUN_APPLICATION_MESSAGE);
+                return;
+            }
         }
 
         outputPrinter.printUserMessage(UserMessage.SOURCE_MATRIX_MESSAGE);
@@ -135,7 +130,7 @@ public class Application {
         outputPrinter.printUserMessage(UserMessage.MATRIX_AFTER_DIAGONALIZATION_MESSAGE);
         extendedMatrix.print();
 
-        SimpleIteratorSolver simpleIteratorSolver = new SimpleIteratorSolver(extendedMatrix, accuracy);
+        SimpleIteratorSolver simpleIteratorSolver = new SimpleIteratorSolver(extendedMatrix);
 
         simpleIteratorSolver.prepare();
         simpleIteratorSolver.solve();
@@ -145,28 +140,9 @@ public class Application {
     }
 
     private ExtendedMatrix getExtendedMatrixFromFile(InputStream inputStream) {
-        return getExtendedMatrix(inputStream);
-    }
-
-    private ExtendedMatrix getExtendedMatrixFromConsole(InputStream inputStream) {
-        ExtendedMatrix extendedMatrix = null;
-
-        while (null == extendedMatrix) {
-            extendedMatrix = getExtendedMatrix(inputStream);
-
-            if (null == extendedMatrix) {
-                outputPrinter.printErrorMessage(ErrorMessage.TRY_AGAIN_MESSAGE);
-            }
-        }
-
-        return extendedMatrix;
-    }
-
-    private ExtendedMatrix getExtendedMatrix(InputStream inputStream) {
-        ExtendedMatrix extendedMatrix = null;
-
+        ExtendedMatrix matrix = null;
         try {
-            extendedMatrix = inputWorker.readMatrixFromInputStream(inputStream);
+            matrix = fileInputWorker.getExtendedMatrix(inputStream);
         } catch (NumberFormatException e) {
             outputPrinter.printErrorMessage(ErrorMessage.SYSTEM_COEFFICIENT_TYPE_MISMATCH_MESSAGE);
         } catch (InputMismatchException | NumberOfVariablesTypeMismatchException e) {
@@ -175,13 +151,16 @@ public class Application {
             outputPrinter.printErrorMessage(ErrorMessage.ROW_ARGS_AMOUNT_MISMATCH_MESSAGE);
         } catch (MatrixRowsAmountMismatchException e) {
             outputPrinter.printErrorMessage(ErrorMessage.ROWS_AMOUNT_MISMATCH_MESSAGE);
+        } catch (AccuracyOrNumberOfVariablesNotInputtedException e) {
+            outputPrinter.printErrorMessage(ErrorMessage.ACCURACY_AND_NUMBER_MESSAGE);
+        } catch (AccuracyTypeMismatchException e) {
+            outputPrinter.printErrorMessage(ErrorMessage.ACCURACY_TYPE_MISMATCH_MESSAGE);
         } catch (NoSuchElementException e) {
             outputPrinter.printErrorMessage(ErrorMessage.NOT_SUPPORTED_SYMBOL_MESSAGE);
             outputPrinter.printErrorMessage(ErrorMessage.RERUN_APPLICATION_MESSAGE);
             System.exit(0);
         }
 
-
-        return extendedMatrix;
+        return matrix;
     }
 }
