@@ -7,14 +7,17 @@ import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 public class ConsolePrinter implements OutputPrinter {
 
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_RED = "\u001B[31m";
+
     @Override
     public void printErrorMessage(ErrorMessage errorMessage) {
-        System.err.println(errorMessage.message);
-        System.err.println(ErrorMessage.RERUN_APPLICATION_MESSAGE.message);
+        System.out.println(ANSI_RED + errorMessage.message + ANSI_RESET);
     }
 
     @Override
@@ -24,21 +27,35 @@ public class ConsolePrinter implements OutputPrinter {
 
     @Override
     public <T> T askToInput(UserMessage userMessage,
-                        ErrorMessage errorMessage,
-                        Scanner scanner,
-                        Function<String, T> convertionFunction) {
-        try {
-            System.out.println(userMessage.message);
-            System.out.print(">>> ");
-            return convertionFunction.apply(scanner.nextLine());
-        } catch (NoSuchElementException e) {
-            printErrorMessage(ErrorMessage.NOT_SUPPORTED_SYMBOL_MESSAGE);
-            scanner.close();
-            return null;
-        } catch (Exception e) {
-            printErrorMessage(errorMessage);
-            scanner.close();
-            return null;
+                            Scanner scanner,
+                            Function<String, T> convertionFunction,
+                            ErrorMessage convertationErrorMessage,
+                            Predicate<T> validationPredicate,
+                            ErrorMessage validationErrorMessage) {
+        T result;
+        System.out.println(userMessage.message);
+
+        while (true) {
+            try {
+                System.out.print(">>> ");
+
+                T currentResult = convertionFunction.apply(scanner.nextLine());
+
+                if (validationPredicate.test(currentResult)) {
+                    result = currentResult;
+                    break;
+                } else {
+                    printErrorMessage(validationErrorMessage);
+                }
+            } catch (NoSuchElementException e) {
+                printErrorMessage(ErrorMessage.NOT_SUPPORTED_SYMBOL_MESSAGE);
+                printErrorMessage(ErrorMessage.RERUN_APPLICATION_MESSAGE);
+                System.exit(0);
+            } catch (Exception e) {
+                printErrorMessage(convertationErrorMessage);
+            }
+            printErrorMessage(ErrorMessage.TRY_AGAIN_MESSAGE);
         }
+        return result;
     }
 }

@@ -5,6 +5,7 @@ import org.emented.message.UserMessage;
 
 import java.util.Scanner;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public interface OutputPrinter {
 
@@ -12,8 +13,10 @@ public interface OutputPrinter {
     void printUserMessage(UserMessage userMessage);
 
     <T> T askToInput(UserMessage userMessage,
-                     ErrorMessage errorMessage,
                      Scanner scanner,
-                     Function<String, T> convertionFunction);
+                     Function<String, T> convertionFunction,
+                     ErrorMessage convertationErrorMessage,
+                     Predicate<T> validationPredicate,
+                     ErrorMessage validationErrorMessage);
 
 }

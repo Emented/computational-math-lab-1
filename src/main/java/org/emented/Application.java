@@ -5,7 +5,8 @@ import org.emented.calculation.PredominantMatrixGenerator;
 import org.emented.calculation.SimpleIteratorSolver;
 import org.emented.exception.MatrixRowsAmountMismatchException;
 import org.emented.exception.MatrixRowArgumentAmountMismatchException;
-import org.emented.file_work.FileWorker;
+import org.emented.exception.NumberOfVariablesTypeMismatchException;
+import org.emented.filework.FileWorker;
 import org.emented.io.InputWorker;
 import org.emented.dto.ExtendedMatrix;
 import org.emented.io.OutputPrinter;
@@ -14,16 +15,26 @@ import org.emented.message.UserMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.function.Function;
+import java.util.function.Predicate;
+
 
 @Component
 public class Application {
+
+    private static final Predicate<String> YES_NO_VALIDATION_PREDICATE =
+            el -> el.equalsIgnoreCase("y") || el.equalsIgnoreCase("n") || el.isBlank();
+
+    private static final Predicate<String> FILENAME_VALIDATION_PREDICATE = el -> {
+        File file = new File(el);
+        return file.exists() && !file.isDirectory();
+    };
 
     private final InputWorker inputWorker;
     private final FileWorker fileWorker;
@@ -52,58 +63,60 @@ public class Application {
         ExtendedMatrix extendedMatrix;
 
         String generateNumbersAnswer = outputPrinter.askToInput(UserMessage.GENERATE_NUMBERS_MESSAGE,
-                ErrorMessage.FATAL_ERROR,
                 sc,
-                Function.identity());
-        if (generateNumbersAnswer == null) return;
+                Function.identity(),
+                ErrorMessage.FATAL_ERROR,
+                YES_NO_VALIDATION_PREDICATE,
+                ErrorMessage.YES_NO_QUESTION_ANSWER_VALIDATION_ERROR_MESSAGE);
 
         Double accuracy = outputPrinter.askToInput(UserMessage.INPUT_ACCURACY_MESSAGE,
-                ErrorMessage.ACCURACY_TYPE_MISMATCH_MESSAGE,
                 sc,
-                Double::parseDouble);
-        if (accuracy == null) return;
+                str -> Double.parseDouble(str.replaceAll(",", ".")),
+                ErrorMessage.ACCURACY_TYPE_MISMATCH_MESSAGE,
+                num -> num > 0,
+                ErrorMessage.ACCURACY_NUMBER_NEGATIVE_OR_ZERO_MESSAGE);
 
         if ("y".equalsIgnoreCase(generateNumbersAnswer)) {
             Integer numberOfVariables = outputPrinter.askToInput(UserMessage.INPUT_NUMBER_OF_VARIABLES_MESSAGE,
-                    ErrorMessage.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE,
                     sc,
-                    Integer::parseInt);
-            if (numberOfVariables == null) return;
+                    Integer::parseInt,
+                    ErrorMessage.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE,
+                    num -> num > 0,
+                    ErrorMessage.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE);
 
             extendedMatrix = predominantMatrixGenerator.generatePredominantMatrix(numberOfVariables);
         } else {
             String inputAnswer = outputPrinter.askToInput(UserMessage.INPUT_TYPE_MESSAGE,
-                    ErrorMessage.FATAL_ERROR,
                     sc,
-                    Function.identity());
-            if (inputAnswer == null) return;
+                    Function.identity(),
+                    ErrorMessage.FATAL_ERROR,
+                    YES_NO_VALIDATION_PREDICATE,
+                    ErrorMessage.YES_NO_QUESTION_ANSWER_VALIDATION_ERROR_MESSAGE);
 
             InputStream inputStream;
 
             if ("y".equalsIgnoreCase(inputAnswer)) {
                 String filename = outputPrinter.askToInput(UserMessage.INPUT_PATH_MESSAGE,
-                        ErrorMessage.FATAL_ERROR,
                         sc,
-                        Function.identity());
-                if (filename == null) return;
-
+                        Function.identity(),
+                        ErrorMessage.FATAL_ERROR,
+                        FILENAME_VALIDATION_PREDICATE,
+                        ErrorMessage.FILE_NOT_FOUND_MESSAGE);
                 try {
                     inputStream = fileWorker.getInputStreamByFileName(filename);
                 } catch (FileNotFoundException e) {
                     outputPrinter.printErrorMessage(ErrorMessage.FILE_NOT_FOUND_MESSAGE);
                     return;
                 }
+
+                extendedMatrix = getExtendedMatrixFromFile(inputStream);
             } else {
                 outputPrinter.printUserMessage(UserMessage.INPUT_SYSTEM_MESSAGE);
                 inputStream = System.in;
+
+                extendedMatrix = getExtendedMatrixFromConsole(inputStream);
             }
 
-            try {
-                extendedMatrix = getExtendedMatrix(inputStream);
-            } catch (IOException e) {
-                outputPrinter.printErrorMessage(ErrorMessage.FATAL_ERROR);
-                return;
-            }
             if (extendedMatrix == null) return;
         }
 
@@ -131,14 +144,32 @@ public class Application {
         sc.close();
     }
 
-    private ExtendedMatrix getExtendedMatrix(InputStream inputStream) throws IOException {
+    private ExtendedMatrix getExtendedMatrixFromFile(InputStream inputStream) {
+        return getExtendedMatrix(inputStream);
+    }
+
+    private ExtendedMatrix getExtendedMatrixFromConsole(InputStream inputStream) {
         ExtendedMatrix extendedMatrix = null;
 
-        try (inputStream) {
+        while (null == extendedMatrix) {
+            extendedMatrix = getExtendedMatrix(inputStream);
+
+            if (null == extendedMatrix) {
+                outputPrinter.printErrorMessage(ErrorMessage.TRY_AGAIN_MESSAGE);
+            }
+        }
+
+        return extendedMatrix;
+    }
+
+    private ExtendedMatrix getExtendedMatrix(InputStream inputStream) {
+        ExtendedMatrix extendedMatrix = null;
+
+        try {
             extendedMatrix = inputWorker.readMatrixFromInputStream(inputStream);
         } catch (NumberFormatException e) {
             outputPrinter.printErrorMessage(ErrorMessage.SYSTEM_COEFFICIENT_TYPE_MISMATCH_MESSAGE);
-        } catch (InputMismatchException e) {
+        } catch (InputMismatchException | NumberOfVariablesTypeMismatchException e) {
             outputPrinter.printErrorMessage(ErrorMessage.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE);
         } catch (MatrixRowArgumentAmountMismatchException e) {
             outputPrinter.printErrorMessage(ErrorMessage.ROW_ARGS_AMOUNT_MISMATCH_MESSAGE);
@@ -146,7 +177,10 @@ public class Application {
             outputPrinter.printErrorMessage(ErrorMessage.ROWS_AMOUNT_MISMATCH_MESSAGE);
         } catch (NoSuchElementException e) {
             outputPrinter.printErrorMessage(ErrorMessage.NOT_SUPPORTED_SYMBOL_MESSAGE);
+            outputPrinter.printErrorMessage(ErrorMessage.RERUN_APPLICATION_MESSAGE);
+            System.exit(0);
         }
+
 
         return extendedMatrix;
     }
