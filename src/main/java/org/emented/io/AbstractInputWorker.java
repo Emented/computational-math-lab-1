@@ -7,6 +7,7 @@ import java.util.Scanner;
 import org.emented.dto.ExtendedMatrix;
 import org.emented.exception.MatrixRowArgumentAmountMismatchException;
 import org.emented.exception.MatrixRowsAmountMismatchException;
+import org.emented.exception.ZeroRowException;
 
 public abstract class AbstractInputWorker {
 
@@ -38,6 +39,15 @@ public abstract class AbstractInputWorker {
             double[] converted_line = Arrays.stream(splitted_row)
                     .mapToDouble(el -> Double.parseDouble(el.replaceAll(",", ".")))
                     .toArray();
+
+            double absRowSum = Arrays.stream(converted_line)
+                    .limit(converted_line.length - 1)
+                    .map(Math::abs)
+                    .sum();
+
+            if (absRowSum == 0) {
+                throw new ZeroRowException();
+            }
             extendedMatrix[i] = converted_line;
         }
 

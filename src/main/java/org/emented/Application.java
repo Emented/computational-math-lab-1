@@ -7,6 +7,7 @@ import org.emented.exception.AccuracyTypeMismatchException;
 import org.emented.exception.MatrixRowsAmountMismatchException;
 import org.emented.exception.MatrixRowArgumentAmountMismatchException;
 import org.emented.exception.NumberOfVariablesTypeMismatchException;
+import org.emented.exception.ZeroRowException;
 import org.emented.filework.FileWorker;
 import org.emented.io.ConsoleInputWorker;
 import org.emented.io.FileInputWorker;
@@ -133,7 +134,7 @@ public class Application {
         SimpleIteratorSolver simpleIteratorSolver = new SimpleIteratorSolver(extendedMatrix);
 
         simpleIteratorSolver.prepare();
-        simpleIteratorSolver.solve();
+        simpleIteratorSolver.solve(false);
         simpleIteratorSolver.printAnswer();
 
         sc.close();
@@ -155,6 +156,8 @@ public class Application {
             outputPrinter.printErrorMessage(ErrorMessage.ACCURACY_AND_NUMBER_MESSAGE);
         } catch (AccuracyTypeMismatchException e) {
             outputPrinter.printErrorMessage(ErrorMessage.ACCURACY_TYPE_MISMATCH_MESSAGE);
+        } catch (ZeroRowException e) {
+            outputPrinter.printErrorMessage(ErrorMessage.ZERO_ROW_MESSAGE);
         } catch (NoSuchElementException e) {
             outputPrinter.printErrorMessage(ErrorMessage.NOT_SUPPORTED_SYMBOL_MESSAGE);
             outputPrinter.printErrorMessage(ErrorMessage.RERUN_APPLICATION_MESSAGE);

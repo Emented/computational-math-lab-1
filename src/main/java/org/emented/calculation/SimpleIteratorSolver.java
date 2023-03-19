@@ -32,10 +32,11 @@ public class SimpleIteratorSolver implements SystemSolver {
         double[][] matrix = extendedMatrix.getMatrix();
 
         for (int i = 0; i < numberOfVariables; i++) {
-            double maxInRow = Double.MIN_VALUE;
-            for (int j = 0; j < numberOfVariables; j++) {
-                maxInRow = Math.max(maxInRow, Math.abs(matrix[i][j]));
-            }
+//            double maxInRow = Double.MIN_VALUE;
+//            for (int j = 0; j < numberOfVariables; j++) {
+//                maxInRow = Math.max(maxInRow, Math.abs(matrix[i][j]));
+//            }
+            double maxInRow = Math.abs(matrix[i][i]);
 
             for (int j = 0; j <= numberOfVariables; j++) {
                 if (i == j) {
@@ -56,7 +57,7 @@ public class SimpleIteratorSolver implements SystemSolver {
     }
 
     @Override
-    public void solve() {
+    public void solve(boolean zeidel) {
         double accuracy = extendedMatrix.getAccuracy();
         int numberOfVariables = extendedMatrix.getNumberOfVariables();
         double[][] matrix = extendedMatrix.getMatrix();
@@ -70,7 +71,11 @@ public class SimpleIteratorSolver implements SystemSolver {
 
                 for (int j = 0; j < numberOfVariables; j++) {
                     if (i != j) {
-                        newX += matrix[i][j] * approximation.get(iterationsCount)[j];
+                        if (j < i && zeidel) {
+                            newX += matrix[i][j] * approximation.get(iterationsCount + 1)[j];
+                        } else {
+                            newX += matrix[i][j] * approximation.get(iterationsCount)[j];
+                        }
                     }
                 }
 

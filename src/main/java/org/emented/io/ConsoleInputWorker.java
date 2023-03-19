@@ -9,6 +9,7 @@ import org.emented.dto.ExtendedMatrix;
 import org.emented.exception.MatrixRowArgumentAmountMismatchException;
 import org.emented.exception.MatrixRowsAmountMismatchException;
 import org.emented.exception.NumberOfVariablesTypeMismatchException;
+import org.emented.exception.ZeroRowException;
 import org.emented.message.ErrorMessage;
 import org.emented.message.UserMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,8 @@ public class ConsoleInputWorker extends AbstractInputWorker {
                 outputPrinter.printErrorMessage(ErrorMessage.ROW_ARGS_AMOUNT_MISMATCH_MESSAGE);
             } catch (MatrixRowsAmountMismatchException e) {
                 outputPrinter.printErrorMessage(ErrorMessage.ROWS_AMOUNT_MISMATCH_MESSAGE);
+            } catch (ZeroRowException e) {
+                outputPrinter.printErrorMessage(ErrorMessage.ZERO_ROW_MESSAGE);
             } catch (NoSuchElementException e) {
                 outputPrinter.printErrorMessage(ErrorMessage.NOT_SUPPORTED_SYMBOL_MESSAGE);
                 outputPrinter.printErrorMessage(ErrorMessage.RERUN_APPLICATION_MESSAGE);

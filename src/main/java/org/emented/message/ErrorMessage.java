@@ -14,7 +14,8 @@ public enum ErrorMessage {
     RERUN_APPLICATION_MESSAGE("Fix input, rerun the application and try again!"),
     TRY_AGAIN_MESSAGE("Please try again!"),
     IMPOSSIBLE_TO_CONVERT_TO_DIAGONAL_MESSAGE("Impossible to convert to diagonal predominant form"),
-    ACCURACY_AND_NUMBER_MESSAGE("First string of the file should look like: {numberOfVars} {accuracy}");
+    ACCURACY_AND_NUMBER_MESSAGE("First string of the file should look like: {numberOfVars} {accuracy}"),
+    ZERO_ROW_MESSAGE("Row of matrix should not have all zeros");
 
 
     public final String message;
