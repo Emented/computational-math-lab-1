@@ -38,7 +38,7 @@ public class ConsoleInputWorker extends AbstractInputWorker {
                 sc,
                 Integer::parseInt,
                 ErrorMessage.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE,
-                num -> num > 0,
+                num -> num > 0 && num <= 20,
                 ErrorMessage.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE);
 
         outputPrinter.printUserMessage(UserMessage.INPUT_MATRIX_MESSAGE);

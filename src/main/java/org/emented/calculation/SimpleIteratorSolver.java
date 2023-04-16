@@ -32,10 +32,6 @@ public class SimpleIteratorSolver implements SystemSolver {
         double[][] matrix = extendedMatrix.getMatrix();
 
         for (int i = 0; i < numberOfVariables; i++) {
-//            double maxInRow = Double.MIN_VALUE;
-//            for (int j = 0; j < numberOfVariables; j++) {
-//                maxInRow = Math.max(maxInRow, Math.abs(matrix[i][j]));
-//            }
             double maxInRow = Math.abs(matrix[i][i]);
 
             for (int j = 0; j <= numberOfVariables; j++) {
@@ -53,7 +49,6 @@ public class SimpleIteratorSolver implements SystemSolver {
             firstEntry[i] = matrix[i][numberOfVariables];
         }
         approximation.add(firstEntry);
-
     }
 
     @Override
@@ -86,7 +81,7 @@ public class SimpleIteratorSolver implements SystemSolver {
 
             iterationsCount++;
 
-        } while (!(Arrays.stream(errors.get(errors.size() - 1)).max().getAsDouble() <= accuracy));
+        } while (!(Arrays.stream(errors.get(errors.size() - 1)).max().orElse(0) <= accuracy));
 
         answer = approximation.get(approximation.size() - 1);
 
@@ -106,7 +101,7 @@ public class SimpleIteratorSolver implements SystemSolver {
         for (int i = 0; i < errors.size(); i++) {
             System.out.printf("%d iteration: %.12f\n",
                     i + 1,
-                    errors.get(i)[extendedMatrix.getNumberOfVariables() - 1]);
+                    Arrays.stream(errors.get(i)).max().orElse(0));
         }
     }
 }

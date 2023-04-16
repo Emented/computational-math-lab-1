@@ -38,7 +38,7 @@ public class GeneratorInputWorker extends AbstractInputWorker {
                 sc,
                 Integer::parseInt,
                 ErrorMessage.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE,
-                num -> num > 0,
+                num -> num > 0 && num <= 20,
                 ErrorMessage.NUMBER_OF_VARIABLES_TYPE_MISMATCH_MESSAGE);
 
         return generator.generatePredominantMatrix(numberOfVariables, accuracy);

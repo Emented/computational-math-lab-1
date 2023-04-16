@@ -125,6 +125,7 @@ public class Application {
 
         if (extendedMatrix == null) {
             outputPrinter.printErrorMessage(ErrorMessage.IMPOSSIBLE_TO_CONVERT_TO_DIAGONAL_MESSAGE);
+            outputPrinter.printErrorMessage(ErrorMessage.RERUN_APPLICATION_MESSAGE);
             return;
         }
 
@@ -159,7 +160,7 @@ public class Application {
         } catch (ZeroRowException e) {
             outputPrinter.printErrorMessage(ErrorMessage.ZERO_ROW_MESSAGE);
         } catch (NoSuchElementException e) {
-            outputPrinter.printErrorMessage(ErrorMessage.NOT_SUPPORTED_SYMBOL_MESSAGE);
+            outputPrinter.printErrorMessage(ErrorMessage.ROWS_AMOUNT_MISMATCH_MESSAGE);
             outputPrinter.printErrorMessage(ErrorMessage.RERUN_APPLICATION_MESSAGE);
             System.exit(0);
         }

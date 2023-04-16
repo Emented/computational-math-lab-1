@@ -39,7 +39,7 @@ public class ConsolePrinter implements OutputPrinter {
             try {
                 System.out.print(">>> ");
 
-                T currentResult = convertionFunction.apply(scanner.nextLine());
+                T currentResult = convertionFunction.apply(scanner.nextLine().trim());
 
                 if (validationPredicate.test(currentResult)) {
                     result = currentResult;
